@@ -2058,10 +2058,10 @@
         <div class="logo-sub">Live Planner</div>
       </div>
       <nav>
-        <button class="nav-btn active" id="btn-main">ホーム</button>
-        <button class="nav-btn" id="btn-calendar">カレンダー</button>
-        <button class="nav-btn" id="btn-budget">예산</button>
-        <button class="nav-btn" id="btn-todo">ToDo</button>
+        <button class="nav-btn active" onclick="showPage('main',this)">ホーム</button>
+        <button class="nav-btn" onclick="showPage('calendar',this)">カレンダー</button>
+        <button class="nav-btn" onclick="showPage('budget',this)">예산</button>
+        <button class="nav-btn" onclick="showPage('todo',this)">ToDo</button>
       </nav>
       <div class="header-right">
         <div class="cur-toggle">
@@ -2175,7 +2175,7 @@
   <!-- GENBA MODAL -->
   <div class="overlay" id="modalOv">
     <div class="modal">
-      <button class="modal-close-x" onclick="closeTripModal()">✕</button>
+      <button class="modal-close-x" onclick="discardAndClose()">✕</button>
       <div class="modal-title-row">
         <div class="modal-title" id="mTitle">✦ 겐바 등록</div>
         <span class="draft-badge" id="draftBadge">임시저장됨</span>
@@ -2358,21 +2358,10 @@
   </div>
 
   <script type="module">
-    
-    //--firebase 설정-- 
-    // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
-    import { 
-      getFirestore, 
-      doc, 
-      setDoc, 
-      getDoc 
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
     const firebaseConfig = {
       apiKey: "AIzaSyBZjCUjMQ2DeTMTeYPNCNPfB1x_9q-T3Dw",
       authDomain: "genbamemo-1f378.firebaseapp.com",
@@ -2382,12 +2371,10 @@
       appId: "1:762076762866:web:107f6b773aa1086df6b66b",
       measurementId: "G-9VC49VGJJM"
     };
-   // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getFirestore(app);
 
-    
     // ── HELPERS (declared first) ──
     const TAG_PALETTE = ['#e8449a', '#9b59d0', '#c97c0a', '#1a8a7a', '#e53e3e', '#0369a1', '#166534', '#854d0e', '#475569', '#9a3412'];
     function tagColorFn(text) { let h = 0; for (const c of text) h = (h * 31 + c.charCodeAt(0)) % TAG_PALETTE.length; return TAG_PALETTE[h]; }
@@ -2411,39 +2398,16 @@
     let tagRegistry = [];
     async function saveAll() {
       await setDoc(doc(db, "appData", "main"), {
-          list,
-          trips,
-          todos,
-          tagRegistry
-        }, { merge: true });
+        list,
+        trips,
+        todos,
+        tagRegistry
+      });
     }
     const save = saveAll;
     const saveTrips = saveAll;
     const saveT = saveAll;
     const saveReg = saveAll;
-
-    // ── MIGRATE ──
-    list = list.map(g => {
-      if (Array.isArray(g.tags) && g.tags.length && typeof g.tags[0] === 'string')
-        g.tags = g.tags.map(t => ({ name: t, color: tagColorFn(t) }));
-      if (!g.tktimes) g.tktimes = 1;
-      return g;
-    });
-
-    // ── SEED ──
-    if (!list.length) {
-      const n = new Date(), nd = d => { const t = new Date(n); t.setDate(t.getDate() + d); return t.toISOString().split('T')[0]; };
-      if (!trips.length) { trips = [{ id: 9001, name: '4월 도쿄 원정', ds: nd(12), de: nd(15), fl: 185000, hp: 12000, hn: 3, ms: 30000, memo: 'KE703 / 도미인 신주쿠', af: 0, ah: 0, am: 0 }]; saveTrips(); }
-      list = [
-        { id: 1, name: 'シャイニーカラーズ 5th LIVE', ds: nd(12), de: nd(13), deadline: nd(5), venue: 'さいたまスーパーアリーナ', tags: [{ name: '샤이콜', color: '#e8449a' }, { name: '이벤트', color: '#c97c0a' }], url: '', tripId: 9001, fl: 0, hp: 0, hn: 1, ms: 0, tk: 8800, tktimes: 2, going: true, af: 0, at: 0, ah: 0, am: 0, memo: '' },
-        { id: 2, name: '桑山千雪 1st SOLO LIVE', ds: nd(28), de: nd(28), deadline: '', venue: 'Zepp Tokyo', tags: [{ name: '솔로', color: '#9b59d0' }, { name: '치유키', color: '#e8449a' }], url: '', tripId: null, fl: 218000, hp: 9500, hn: 1, ms: 20000, tk: 7700, tktimes: 1, going: true, af: 205000, at: 8200, ah: 9500, am: 18000, memo: 'KE703 / 6B석' },
-        { id: 3, name: "L'Antica 2nd UNIT TOUR", ds: nd(55), de: nd(56), deadline: nd(40), venue: '大阪城ホール', tags: [{ name: '란티카', color: '#1a8a7a' }, { name: '유닛', color: '#9b59d0' }], url: '', tripId: null, fl: 195000, hp: 11000, hn: 2, ms: 25000, tk: 9900, tktimes: 2, going: false, af: 0, at: 0, ah: 0, am: 0, memo: '' },
-        { id: 4, name: 'THE IDOLM@STER 16th', ds: nd(85), de: nd(87), deadline: '', venue: '東京ドーム', tags: [{ name: '전체현장', color: '#c97c0a' }, { name: '이마스', color: '#e8449a' }], url: '', tripId: null, fl: 210000, hp: 15000, hn: 3, ms: 50000, tk: 11000, tktimes: 3, going: true, af: 0, at: 0, ah: 0, am: 0, memo: '' },
-      ]; save();
-    }
-    list.forEach(g => (g.tags || []).forEach(t => { if (!tagRegistry.find(r => r.name === t.name)) tagRegistry.push({ name: t.name, color: t.color }); }));
-    saveReg();
-    if (!todos.length) { todos = [{ id: 1, text: '항공권 예매', done: false, cat: '항공' }, { id: 2, text: '숙박 예약 확인', done: false, cat: '숙박' }, { id: 3, text: '티켓 팬클럽 선행 신청', done: true, cat: '티켓' }, { id: 4, text: '여행자 보험 가입', done: false, cat: '준비' }, { id: 5, text: '엔화 환전', done: false, cat: '준비' }, { id: 6, text: '페이페이 충전', done: false, cat: '현지' }]; saveT(); }
 
     // ── LIVE EXCHANGE RATE ──
     async function fetchRate(force = false) {
@@ -2469,19 +2433,28 @@
       b.title = stale ? '환율 로드 실패 (클릭하여 재시도)' : '클릭하여 갱신';
     }
 
-    // -- loadDate --
+    // -- loadData --
     async function loadData() {
-      const snap = await getDoc(doc(db, "appData", "main"));
-
-      if (snap.exists()) {
-        const data = snap.data();
-        list = data.list || [];
-        trips = data.trips || [];
-        todos = data.todos || [];
-        tagRegistry = data.tagRegistry || [];
+      try {
+        const snap = await getDoc(doc(db, "appData", "main"));
+        if (snap.exists()) {
+          const data = snap.data();
+          list = data.list || [];
+          trips = data.trips || [];
+          todos = data.todos || [];
+          tagRegistry = data.tagRegistry || [];
+        }
+      } catch (e) {
+        console.warn('Firebase 로드 실패, 빈 상태로 시작합니다.', e);
       }
-
-      renderMain(); // 👉 너 UI 갱신 함수
+      // migrate after load
+      list = list.map(g => {
+        if (Array.isArray(g.tags) && g.tags.length && typeof g.tags[0] === 'string')
+          g.tags = g.tags.map(t => ({ name: t, color: tagColorFn(t) }));
+        if (!g.tktimes) g.tktimes = 1;
+        return g;
+      });
+      list.forEach(g => (g.tags || []).forEach(t => { if (!tagRegistry.find(r => r.name === t.name)) tagRegistry.push({ name: t.name, color: t.color }); }));
     }
     // ── CURRENCY ──
     function setCur(c) {
@@ -2555,7 +2528,7 @@
     function clearDraft() { localStorage.removeItem('draft'); document.getElementById('draftBadge').classList.remove('show'); }
 
     // ── NAV ──
-     function showPage(n, btn){
+    function showPage(n, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('page-' + n).classList.add('active');
@@ -2822,57 +2795,48 @@
     function togTodo(id) { const t = todos.find(x => x.id === id); if (t) { t.done = !t.done; saveT(); renderTodo(); } }
     function delTodo(id) { todos = todos.filter(x => x.id !== id); saveT(); renderTodo(); }
 
-
-
-    
     // ── INIT ──
-async function init() {
+    async function init() {
+      await loadData();
+      fetchRate();
+      renderMain();
+    }
 
-  // ✅ 1. 이벤트 먼저 (UI 바로 반응하게)
-  document.getElementById("btn-main").onclick = function() {
-    showPage('main', this);
-  };
+    // ── EXPOSE TO GLOBAL (required for inline onclick handlers) ──
+    window.showPage = showPage;
+    window.setCur = setCur;
+    window.fetchRate = fetchRate;
+    window.openAdd = openAdd;
+    window.openEdit = openEdit;
+    window.openTripModal = openTripModal;
+    window.openTripEdit = openTripEdit;
+    window.closeTripModal = closeTripModal;
+    window.discardAndClose = discardAndClose;
+    window.clearForm = clearForm;
+    window.submitGenba = submitGenba;
+    window.submitTrip = submitTrip;
+    window.openDetail = openDetail;
+    window.closeDetail = closeDetail;
+    window.toggleG = toggleG;
+    window.delGenba = delGenba;
+    window.delTrip = delTrip;
+    window.onTripChange = onTripChange;
+    window.clampPos = clampPos;
+    window.clampMin = clampMin;
+    window.updEst = updEst;
+    window.updAct = updAct;
+    window.updTripEst = updTripEst;
+    window.saveDraft = saveDraft;
+    window.handleTagKey = handleTagKey;
+    window.renderTagSugg = renderTagSugg;
+    window.addTagFromSugg = addTagFromSugg;
+    window.removeTag = removeTag;
+    window.setTagFilter = setTagFilter;
+    window.addTodo = addTodo;
+    window.togTodo = togTodo;
+    window.delTodo = delTodo;
+    window.setTCat = setTCat;
 
-  document.getElementById("btn-calendar").onclick = function() {
-    showPage('calendar', this);
-  };
-
-  document.getElementById("btn-budget").onclick = function() {
-    showPage('budget', this);
-  };
-
-  document.getElementById("btn-todo").onclick = function() {
-    showPage('todo', this);
-  };
-
-  // ✅ 2. 기본 화면 먼저 그림 (중요)
-  renderMain();
-
-  // ✅ 3. Firebase는 뒤에서 비동기
-  loadData().then(() => {
-    renderMain(); // 데이터 오면 다시 렌더
-  });
-
-  // ✅ 4. 환율도 비동기
-  fetchRate();
-}
-    
-window.loadData = loadData;
-window.fetchRate = fetchRate;
-window.showPage = showPage;
-window.openDetail = openDetail;
-window.openAdd = openAdd;
-window.openTripModal = openTripModal;
-window.openTripEdit = openTripEdit;
-window.toggleG = toggleG;
-window.renderMain = renderMain;
-window.discardAndClose = discardAndClose;
-window.closeTripModal = closeTripModal;
-
-    // DOMContentLoaded 이후 버튼이 존재할 때
-document.addEventListener('DOMContentLoaded', () => {
-  // 기존 HTML onclick 사용 가능
-});
     init();
   </script>
 </body>
