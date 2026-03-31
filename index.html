@@ -2824,7 +2824,7 @@
 
     // ── INIT ──
     async function init() {
-      await loadData();   // 🔥 Firebase에서 데이터 먼저 가져오기
+      loadData();   
       fetchRate();        // 기존 그대로
       document.getElementById("btn-main").onclick = function() {
   showPage('main', this);
