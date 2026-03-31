@@ -2358,6 +2358,35 @@
   </div>
 
   <script type="module">
+    
+    //--firebase 설정-- 
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      getDoc 
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZjCUjMQ2DeTMTeYPNCNPfB1x_9q-T3Dw",
+      authDomain: "genbamemo-1f378.firebaseapp.com",
+      projectId: "genbamemo-1f378",
+      storageBucket: "genbamemo-1f378.firebasestorage.app",
+      messagingSenderId: "762076762866",
+      appId: "1:762076762866:web:107f6b773aa1086df6b66b",
+      measurementId: "G-9VC49VGJJM"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+    
     // ── HELPERS (declared first) ──
     const TAG_PALETTE = ['#e8449a', '#9b59d0', '#c97c0a', '#1a8a7a', '#e53e3e', '#0369a1', '#166534', '#854d0e', '#475569', '#9a3412'];
     function tagColorFn(text) { let h = 0; for (const c of text) h = (h * 31 + c.charCodeAt(0)) % TAG_PALETTE.length; return TAG_PALETTE[h]; }
@@ -2800,33 +2829,6 @@
     }
 
     init();
-  
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
-    import { 
-      getFirestore, 
-      doc, 
-      setDoc, 
-      getDoc 
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyBZjCUjMQ2DeTMTeYPNCNPfB1x_9q-T3Dw",
-      authDomain: "genbamemo-1f378.firebaseapp.com",
-      projectId: "genbamemo-1f378",
-      storageBucket: "genbamemo-1f378.firebasestorage.app",
-      messagingSenderId: "762076762866",
-      appId: "1:762076762866:web:107f6b773aa1086df6b66b",
-      measurementId: "G-9VC49VGJJM"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getFirestore(app);
   </script>
 </body>
 
