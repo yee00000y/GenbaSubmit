@@ -2411,11 +2411,11 @@
     let tagRegistry = [];
     async function saveAll() {
       await setDoc(doc(db, "appData", "main"), {
-        list,
-        trips,
-        todos,
-        tagRegistry
-      });
+          list,
+          trips,
+          todos,
+          tagRegistry
+        }, { merge: true });
     }
     const save = saveAll;
     const saveTrips = saveAll;
@@ -2826,7 +2826,6 @@
     async function init() {
       await loadData();   // 🔥 Firebase에서 데이터 먼저 가져오기
       fetchRate();        // 기존 그대로
-      renderMain();       // 기존 그대로
       document.getElementById("btn-main").onclick = function() {
   showPage('main', this);
 };
