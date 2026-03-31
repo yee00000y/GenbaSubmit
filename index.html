@@ -2822,26 +2822,47 @@
     function togTodo(id) { const t = todos.find(x => x.id === id); if (t) { t.done = !t.done; saveT(); renderTodo(); } }
     function delTodo(id) { todos = todos.filter(x => x.id !== id); saveT(); renderTodo(); }
 
+    document.getElementById('loading').style.display = 'block';
+
+loadData().then(() => {
+  renderMain();
+  document.getElementById('loading').style.display = 'none';
+});
     // ── INIT ──
-    async function init() {
-      loadData();   
-      fetchRate();        // 기존 그대로
-      document.getElementById("btn-main").onclick = function() {
-  showPage('main', this);
-};
+window.addEventListener('DOMContentLoaded', () => {
+  init();
+});
 
-document.getElementById("btn-calendar").onclick = function() {
-  showPage('calendar', this);
-};
+async function init() {
 
-document.getElementById("btn-budget").onclick = function() {
-  showPage('budget', this);
-};
+  // ✅ 1. 이벤트 먼저 (UI 바로 반응하게)
+  document.getElementById("btn-main").onclick = function() {
+    showPage('main', this);
+  };
 
-document.getElementById("btn-todo").onclick = function() {
-  showPage('todo', this);
-};
-    }
+  document.getElementById("btn-calendar").onclick = function() {
+    showPage('calendar', this);
+  };
+
+  document.getElementById("btn-budget").onclick = function() {
+    showPage('budget', this);
+  };
+
+  document.getElementById("btn-todo").onclick = function() {
+    showPage('todo', this);
+  };
+
+  // ✅ 2. 기본 화면 먼저 그림 (중요)
+  renderMain();
+
+  // ✅ 3. Firebase는 뒤에서 비동기
+  loadData().then(() => {
+    renderMain(); // 데이터 오면 다시 렌더
+  });
+
+  // ✅ 4. 환율도 비동기
+  fetchRate();
+}
 
     init();
   </script>
