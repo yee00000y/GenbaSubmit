@@ -2822,12 +2822,7 @@
     function togTodo(id) { const t = todos.find(x => x.id === id); if (t) { t.done = !t.done; saveT(); renderTodo(); } }
     function delTodo(id) { todos = todos.filter(x => x.id !== id); saveT(); renderTodo(); }
 
-
     // ── INIT ──
-window.addEventListener('DOMContentLoaded', () => {
-  init();
-});
-
 async function init() {
 
   // ✅ 1. 이벤트 먼저 (UI 바로 반응하게)
