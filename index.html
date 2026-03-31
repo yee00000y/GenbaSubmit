@@ -2357,7 +2357,7 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
     // ── HELPERS (declared first) ──
     const TAG_PALETTE = ['#e8449a', '#9b59d0', '#c97c0a', '#1a8a7a', '#e53e3e', '#0369a1', '#166534', '#854d0e', '#475569', '#9a3412'];
     function tagColorFn(text) { let h = 0; for (const c of text) h = (h * 31 + c.charCodeAt(0)) % TAG_PALETTE.length; return TAG_PALETTE[h]; }
@@ -2800,8 +2800,7 @@
     }
 
     init();
-  </script>
-  <script type="module">
+  
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
