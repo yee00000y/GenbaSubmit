@@ -2058,10 +2058,10 @@
         <div class="logo-sub">Live Planner</div>
       </div>
       <nav>
-        <button class="nav-btn active" onclick="showPage('main',this)">ホーム</button>
-        <button class="nav-btn" onclick="showPage('calendar',this)">カレンダー</button>
-        <button class="nav-btn" onclick="showPage('budget',this)">예산</button>
-        <button class="nav-btn" onclick="showPage('todo',this)">ToDo</button>
+        <button class="nav-btn active" id="btn-main">ホーム</button>
+        <button class="nav-btn" id="btn-calendar">カレンダー</button>
+        <button class="nav-btn" id="btn-budget">예산</button>
+        <button class="nav-btn" id="btn-todo">ToDo</button>
       </nav>
       <div class="header-right">
         <div class="cur-toggle">
@@ -2371,7 +2371,6 @@
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getFirestore(app);
     
@@ -2386,6 +2385,8 @@
       appId: "1:762076762866:web:107f6b773aa1086df6b66b",
       measurementId: "G-9VC49VGJJM"
     };
+
+     const app = initializeApp(firebaseConfig);
     
     // ── HELPERS (declared first) ──
     const TAG_PALETTE = ['#e8449a', '#9b59d0', '#c97c0a', '#1a8a7a', '#e53e3e', '#0369a1', '#166534', '#854d0e', '#475569', '#9a3412'];
@@ -2826,6 +2827,21 @@
       await loadData();   // 🔥 Firebase에서 데이터 먼저 가져오기
       fetchRate();        // 기존 그대로
       renderMain();       // 기존 그대로
+      document.getElementById("btn-main").onclick = function() {
+  showPage('main', this);
+};
+
+document.getElementById("btn-calendar").onclick = function() {
+  showPage('calendar', this);
+};
+
+document.getElementById("btn-budget").onclick = function() {
+  showPage('budget', this);
+};
+
+document.getElementById("btn-todo").onclick = function() {
+  showPage('todo', this);
+};
     }
 
     init();
