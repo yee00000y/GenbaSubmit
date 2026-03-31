@@ -2555,7 +2555,7 @@
     function clearDraft() { localStorage.removeItem('draft'); document.getElementById('draftBadge').classList.remove('show'); }
 
     // ── NAV ──
-     window.showPage = function (n, btn) {
+     function showPage(n, btn){
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('page-' + n).classList.add('active');
