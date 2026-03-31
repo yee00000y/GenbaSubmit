@@ -2827,8 +2827,7 @@
     function delTodo(id) { todos = todos.filter(x => x.id !== id); saveT(); renderTodo(); }
 
 
-    const closeBtn = document.querySelector('.modal-close-x');
-    if (closeBtn) closeBtn.addEventListener('click', closeTripModal);
+
     
     // ── INIT ──
 async function init() {
@@ -2862,7 +2861,8 @@ async function init() {
   fetchRate();
 }
     // 버튼 이벤트 연결
-
+    const closeBtn = document.querySelector('.modal-close-x');
+    if (closeBtn) closeBtn.addEventListener('click', closeTripModal);
 window.loadData = loadData;
 window.fetchRate = fetchRate;
 window.showPage = showPage;
