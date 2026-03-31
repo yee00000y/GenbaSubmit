@@ -2396,18 +2396,20 @@
     let trips = [];
     let todos = [];
     let tagRegistry = [];
+    // Firestore는 undefined 값을 거부하므로 JSON 직렬화로 정제
+    function sanitize(obj) { return JSON.parse(JSON.stringify(obj)); }
     async function saveAll() {
-      await setDoc(doc(db, "appData", "main"), {
-        list,
-        trips,
-        todos,
-        tagRegistry
-      });
+      try {
+        await setDoc(doc(db, "appData", "main"), sanitize({ list, trips, todos, tagRegistry }));
+      } catch (e) {
+        console.error('Firebase 저장 실패:', e);
+        alert('저장 중 오류가 발생했습니다. 콘솔을 확인해주세요.');
+      }
     }
     const save = saveAll;
     const saveTrips = saveAll;
     const saveT = saveAll;
-    const saveReg = saveAll;
+    const saveReg = () => {}; // tagRegistry는 saveAll에 포함되므로 별도 호출 불필요
 
     // ── LIVE EXCHANGE RATE ──
     async function fetchRate(force = false) {
@@ -2420,7 +2422,8 @@
         RATE = Math.round((data.rates.KRW || 9.5) * 100) / 100;
         localStorage.setItem('rateCache', JSON.stringify({ rate: RATE, ts: now }));
         updateRateBadge(false);
-        renderMain();
+        // only re-render if called manually (force=true), not during init
+        if (force) renderMain();
       } catch (e) {
         if (cached) RATE = cached.rate;
         updateRateBadge(true);
@@ -2627,9 +2630,9 @@
   </div>`;
     }
 
-    function toggleG(id) { const g = list.find(x => x.id === id); if (!g) return; g.going = !g.going; save(); renderMain(); }
-    function delGenba(id) { if (!confirm('삭제할까요?')) return; list = list.filter(x => x.id !== id); save(); closeDetail(); renderMain(); }
-    function delTrip(id) { if (!confirm('여행 삭제 시 연결 겐바는 단독으로 변경됩니다. 삭제할까요?')) return; list.forEach(g => { if (g.tripId === id) g.tripId = null; }); save(); trips = trips.filter(t => t.id !== id); saveTrips(); renderMain(); }
+    function toggleG(id) { const g = list.find(x => x.id === id); if (!g) return; g.going = !g.going; renderMain(); save(); }
+    function delGenba(id) { if (!confirm('삭제할까요?')) return; list = list.filter(x => x.id !== id); closeDetail(); renderMain(); save(); }
+    function delTrip(id) { if (!confirm('여행 삭제 시 연결 겐바는 단독으로 변경됩니다. 삭제할까요?')) return; list.forEach(g => { if (g.tripId === id) g.tripId = null; }); trips = trips.filter(t => t.id !== id); renderMain(); save(); }
 
     // ── DETAIL ──
     function openDetail(id) {
@@ -2699,14 +2702,15 @@
       document.getElementById('estPrev').textContent = fmtAmt(base + ticket);
     }
     function updAct() { const af = +gv('f-af') || 0, at = +gv('f-at') || 0, ah = +gv('f-ah') || 0, am = +gv('f-am') || 0; document.getElementById('actPrev').textContent = fmtAmt(af + Math.round((at + ah + am) * RATE)); }
-    function submitGenba() {
+    async function submitGenba() {
       const name = gv('f-name').trim(); if (!name) { alert('공연 이름을 입력해주세요!'); return; }
       const tripId = +gv('f-trip') || null;
-      const data = { name, ds: gv('f-ds'), de: gv('f-de'), deadline: gv('f-deadline'), venue: gv('f-venue').trim(), tags: modalTags.map(t => ({ ...t })), url: gv('f-url').trim(), tripId, fl: tripId ? 0 : (+gv('f-flight') || 0), tk: +gv('f-ticket') || 0, tktimes: +gv('f-tktimes') || 1, hp: tripId ? 0 : (+gv('f-hp') || 0), hn: tripId ? 1 : (+gv('f-hn') || 1), ms: tripId ? 0 : (+gv('f-misc') || 0), af: +gv('f-af') || 0, at: +gv('f-at') || 0, ah: +gv('f-ah') || 0, am: +gv('f-am') || 0, memo: gv('f-memo'), going: true };
-      data.tags.forEach(t => { if (!tagRegistry.find(r => r.name === t.name)) { tagRegistry.push({ name: t.name, color: t.color }); saveReg(); } });
+      const data = { name, ds: gv('f-ds'), de: gv('f-de'), deadline: gv('f-deadline'), venue: gv('f-venue').trim(), tags: modalTags.map(t => ({ ...t })), url: gv('f-url').trim(), tripId: tripId || null, fl: tripId ? 0 : (+gv('f-flight') || 0), tk: +gv('f-ticket') || 0, tktimes: +gv('f-tktimes') || 1, hp: tripId ? 0 : (+gv('f-hp') || 0), hn: tripId ? 1 : (+gv('f-hn') || 1), ms: tripId ? 0 : (+gv('f-misc') || 0), af: +gv('f-af') || 0, at: +gv('f-at') || 0, ah: +gv('f-ah') || 0, am: +gv('f-am') || 0, memo: gv('f-memo') || '', going: true };
+      data.tags.forEach(t => { if (!tagRegistry.find(r => r.name === t.name)) tagRegistry.push({ name: t.name, color: t.color }); });
       if (eid) { const i = list.findIndex(x => x.id === eid); if (i > -1) { data.id = eid; data.going = list[i].going; list[i] = data; } }
       else { data.id = Date.now(); list.push(data); }
-      save(); clearDraft(); closeModal(); renderMain();
+      clearDraft(); closeModal(); renderMain();
+      await save();
     }
 
     // ── TRIP MODAL ──
@@ -2715,7 +2719,7 @@
     function openTripEdit(id) { const trip = trips.find(t => t.id === id); if (!trip) return; teid = id; document.getElementById('tmTitle').textContent = '✈ 여행 수정'; document.getElementById('tmSubmit').textContent = '✈ 저장하기'; sv('t-name', trip.name); sv('t-ds', trip.ds); sv('t-de', trip.de); sv('t-flight', trip.fl); sv('t-hp', trip.hp); sv('t-hn', trip.hn || 1); sv('t-misc', trip.ms || 0); sv('t-memo', trip.memo || ''); updTripEst(); document.getElementById('tripModalOv').classList.add('open'); }
     function closeTripModal() { document.getElementById('tripModalOv').classList.remove('open'); teid = null; }
     function updTripEst() { const f = +gv('t-flight') || 0, hp = +gv('t-hp') || 0, hn = +gv('t-hn') || 1, ms = +gv('t-misc') || 0; document.getElementById('tripEstPrev').textContent = fmtAmt(f + Math.round((hp * hn + ms) * RATE)); }
-    function submitTrip() { const name = gv('t-name').trim(); if (!name) { alert('여행 이름을 입력해주세요!'); return; } const data = { name, ds: gv('t-ds'), de: gv('t-de'), fl: +gv('t-flight') || 0, hp: +gv('t-hp') || 0, hn: +gv('t-hn') || 1, ms: +gv('t-misc') || 0, memo: gv('t-memo'), af: 0, ah: 0, am: 0 }; if (teid) { const i = trips.findIndex(t => t.id === teid); if (i > -1) { data.id = teid; trips[i] = data; } } else { data.id = Date.now(); trips.push(data); } saveTrips(); closeTripModal(); renderMain(); }
+    function submitTrip() { const name = gv('t-name').trim(); if (!name) { alert('여행 이름을 입력해주세요!'); return; } const data = { name, ds: gv('t-ds'), de: gv('t-de'), fl: +gv('t-flight') || 0, hp: +gv('t-hp') || 0, hn: +gv('t-hn') || 1, ms: +gv('t-misc') || 0, memo: gv('t-memo') || '', af: 0, ah: 0, am: 0 }; if (teid) { const i = trips.findIndex(t => t.id === teid); if (i > -1) { data.id = teid; trips[i] = data; } } else { data.id = Date.now(); trips.push(data); } closeTripModal(); renderMain(); save(); }
 
     // ── BUDGET PAGE ──
     function renderBudget() {
@@ -2797,8 +2801,7 @@
 
     // ── INIT ──
     async function init() {
-      await loadData();
-      fetchRate();
+      await Promise.all([loadData(), fetchRate()]);
       renderMain();
     }
 
