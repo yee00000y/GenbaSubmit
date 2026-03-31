@@ -2853,11 +2853,16 @@ async function init() {
   // ✅ 4. 환율도 비동기
   fetchRate();
 }
+window.loadData = loadData;
+window.fetchRate = fetchRate;
+window.showPage = showPage;
 window.openDetail = openDetail;
 window.openAdd = openAdd;
 window.openTripModal = openTripModal;
 window.openTripEdit = openTripEdit;
+window.closeTripModal = closeTripModal;
 window.toggleG = toggleG;
+window.renderMain = renderMain;
     init();
   </script>
 </body>
