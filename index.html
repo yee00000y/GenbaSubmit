@@ -2868,7 +2868,11 @@ window.toggleG = toggleG;
 window.renderMain = renderMain;
 window.discardAndClose = discardAndClose;
 window.closeTripModal = closeTripModal;
-    
+
+    // DOMContentLoaded 이후 버튼이 존재할 때
+document.addEventListener('DOMContentLoaded', () => {
+  // 기존 HTML onclick 사용 가능
+});
     init();
   </script>
 </body>
