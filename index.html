@@ -2175,7 +2175,7 @@
   <!-- GENBA MODAL -->
   <div class="overlay" id="modalOv">
     <div class="modal">
-      <button class="modal-close-x" id="btn-close-trip">✕</button>
+      <button class="modal-close-x" onclick="closeTripModal()">✕</button>
       <div class="modal-title-row">
         <div class="modal-title" id="mTitle">✦ 겐바 등록</div>
         <span class="draft-badge" id="draftBadge">임시저장됨</span>
@@ -2309,7 +2309,7 @@
   <!-- TRIP MODAL -->
   <div class="overlay" id="tripModalOv">
     <div class="modal">
-      <button class="modal-close-x" id="btn-close-trip">✕</button>
+      <button class="modal-close-x" onclick="closeTripModal()">✕</button>
       <div class="modal-title-row">
         <div class="modal-title blue" id="tmTitle">✈ 여행 등록</div>
       </div>
@@ -2740,11 +2740,7 @@
     let teid = null;
     function openTripModal() { teid = null; document.getElementById('tmTitle').textContent = '✈ 여행 등록'; document.getElementById('tmSubmit').textContent = '✈ 등록하기';['t-name', 't-flight', 't-hp', 't-misc', 't-memo'].forEach(id => sv(id, '')); sv('t-hn', 1); const t = new Date().toISOString().split('T')[0]; sv('t-ds', t); sv('t-de', t); updTripEst(); document.getElementById('tripModalOv').classList.add('open'); }
     function openTripEdit(id) { const trip = trips.find(t => t.id === id); if (!trip) return; teid = id; document.getElementById('tmTitle').textContent = '✈ 여행 수정'; document.getElementById('tmSubmit').textContent = '✈ 저장하기'; sv('t-name', trip.name); sv('t-ds', trip.ds); sv('t-de', trip.de); sv('t-flight', trip.fl); sv('t-hp', trip.hp); sv('t-hn', trip.hn || 1); sv('t-misc', trip.ms || 0); sv('t-memo', trip.memo || ''); updTripEst(); document.getElementById('tripModalOv').classList.add('open'); }
-    function closeTripModal() {
-        const modal = document.getElementById('tripModalOv');
-        if (modal) modal.classList.remove('open');
-        teid = null;
-      }
+    function closeTripModal() { document.getElementById('tripModalOv').classList.remove('open'); teid = null; }
     function updTripEst() { const f = +gv('t-flight') || 0, hp = +gv('t-hp') || 0, hn = +gv('t-hn') || 1, ms = +gv('t-misc') || 0; document.getElementById('tripEstPrev').textContent = fmtAmt(f + Math.round((hp * hn + ms) * RATE)); }
     function submitTrip() { const name = gv('t-name').trim(); if (!name) { alert('여행 이름을 입력해주세요!'); return; } const data = { name, ds: gv('t-ds'), de: gv('t-de'), fl: +gv('t-flight') || 0, hp: +gv('t-hp') || 0, hn: +gv('t-hn') || 1, ms: +gv('t-misc') || 0, memo: gv('t-memo'), af: 0, ah: 0, am: 0 }; if (teid) { const i = trips.findIndex(t => t.id === teid); if (i > -1) { data.id = teid; trips[i] = data; } } else { data.id = Date.now(); trips.push(data); } saveTrips(); closeTripModal(); renderMain(); }
 
@@ -2860,9 +2856,7 @@ async function init() {
   // ✅ 4. 환율도 비동기
   fetchRate();
 }
-    // 버튼 이벤트 연결
-    const closeBtn = document.querySelector('.modal-close-x');
-    if (closeBtn) closeBtn.addEventListener('click', closeTripModal);
+    
 window.loadData = loadData;
 window.fetchRate = fetchRate;
 window.showPage = showPage;
@@ -2873,6 +2867,7 @@ window.openTripEdit = openTripEdit;
 window.toggleG = toggleG;
 window.renderMain = renderMain;
 window.discardAndClose = discardAndClose;
+window.closeTripModal = closeTripModal;
     
     init();
   </script>
