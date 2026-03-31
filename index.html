@@ -2370,10 +2370,7 @@
       getDoc 
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // Initialize Firebase
-    const analytics = getAnalytics(app);
-    const db = getFirestore(app);
-    
+  
     // Your web app's Firebase configuration
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
     const firebaseConfig = {
@@ -2385,8 +2382,11 @@
       appId: "1:762076762866:web:107f6b773aa1086df6b66b",
       measurementId: "G-9VC49VGJJM"
     };
+   // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
 
-     const app = initializeApp(firebaseConfig);
     
     // ── HELPERS (declared first) ──
     const TAG_PALETTE = ['#e8449a', '#9b59d0', '#c97c0a', '#1a8a7a', '#e53e3e', '#0369a1', '#166534', '#854d0e', '#475569', '#9a3412'];
